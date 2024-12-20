@@ -7,13 +7,13 @@ import {API_URL} from "@/config/constants"
 const Api = {
 
   getReviews: async (filter: SearchParams): Promise<Review[]> => {
-    const res = await fetch(url(`${API_URL}/reviews`, filter))
+    const res = await fetch(url(`${API_URL}/reviews`, filter), {cache: "no-cache"})
     if (!res.ok) notFound()
     return await res.json()
   },
 
   getReview: async (id: number): Promise<Review> => {
-    const res = await fetch(url(`${API_URL}/reviews/${id}`))
+    const res = await fetch(url(`${API_URL}/reviews/${id}`), {cache: "no-cache"})
     if (!res.ok) notFound()
     return await res.json()
   },
@@ -26,6 +26,10 @@ const Api = {
     })
     if (!res.ok) notFound()
     return await res.json()
+  },
+
+  deleteReview: async (id: number): Promise<void> => {
+    await fetch(url(`${API_URL}/reviews/${id}`), {method: "DELETE"})
   },
 
   createReview: async (data: Review): Promise<Review> => {

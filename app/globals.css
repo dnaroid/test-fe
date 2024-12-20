@@ -5,6 +5,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #3ca8c8;
+  --bgprimary: #293437;
+  --danger: #cd5050;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,16 +24,23 @@ body {
   display: flex;
   flex-direction: column;
   margin: 0 auto;
-  gap: 10px;
   max-width: 1024px;
-  padding: 10px;
+  padding: 1rem .5rem;
 }
 
 main {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: .5rem;
   width: 100%;
+}
+
+header {
+  margin-bottom: 2rem;
+}
+
+footer {
+  margin-top: 2rem;
 }
 
 input, select, textarea {
@@ -45,15 +55,19 @@ input, select, textarea {
 label {
   text-transform: uppercase;
   font-size: 13px;
-  letter-spacing: 2px;
+  letter-spacing: 1.25px;
 }
 
 [role=alert] {
-  color: red;
+  color: var(--danger);
 }
 
 a, button {
-  color: #3ca8c8;
+  color: var(--primary);
+}
+
+a:hover, button:hover {
+  filter: brightness(1.5);
 }
 
 h1 {

@@ -4,8 +4,11 @@ import {Review} from "@/config/models"
 import Api from "@/config/api"
 import Link from "next/link"
 import {useRouter} from "next/navigation"
+import {useState} from "react"
+import {RATINGS_OPTIONS} from "@/config/constants"
+import Spinner from "@/components/spinner"
+import {useForm} from "react-hook-form"
 
-const {useForm} = await import("react-hook-form")
 
 type Props = {
   data: Review
@@ -14,9 +17,12 @@ type Props = {
 
 export default function ReviewForm({data, backLink}: Props) {
   const {register, handleSubmit, formState: {errors}} = useForm<Review>({defaultValues: data})
+  const [isDeleteDialogVisible, setIsDeleteDialogVisible] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
   const onSave = async (data: Review) => {
+    setIsLoading(true)
     if (!!data.id) {
       await Api.updateReview(data.id, data)
     } else {
@@ -25,7 +31,16 @@ export default function ReviewForm({data, backLink}: Props) {
     router.replace(backLink ?? "/")
   }
 
+  const onDelete = async () => {
+    setIsLoading(true)
+    await Api.deleteReview(data.id)
+    router.replace(backLink ?? "/")
+  }
+
   return <div className="flex flex-col gap-5">
+    {isLoading &&
+      <Spinner/>}
+
     <form onSubmit={handleSubmit(onSave)} className="flex flex-col gap-5">
       <div className="flex flex-col">
         <label htmlFor="author">Author</label>
@@ -39,13 +54,11 @@ export default function ReviewForm({data, backLink}: Props) {
       </div>
 
       <div className="flex flex-col">
-        <label htmlFor="rating">Rating</label>
-        <input id="rating"
-               type="number"
-               {...register("rating", {min: 1, max: 5})}
-               aria-invalid={errors.rating ? "true" : "false"}/>
-        {!!errors.rating &&
-          <p role="alert">Rating should be 1...5</p>}
+        <label htmlFor="rating">Rating:</label>
+        <select id="rating" {...register("rating")}>
+          {RATINGS_OPTIONS.map((r) => (
+            <option key={r} value={r}>{r}</option>))}
+        </select>
       </div>
 
       <div className="flex flex-col">
@@ -69,9 +82,31 @@ export default function ReviewForm({data, backLink}: Props) {
 
       <div className="flex justify-between">
         <Link href={backLink ?? "/"}>← CANCEL</Link>
+        {!!data.id &&
+          <button className="text-[var(--danger)]" type="button"
+                  onClick={() => setIsDeleteDialogVisible(true)}>
+            DELETE
+          </button>}
         <button type="submit">SAVE</button>
       </div>
-
     </form>
+
+    {isDeleteDialogVisible && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="bg-[var(--bgprimary)] rounded-lg shadow-lg p-6 m-5 max-w-sm w-full text-center">
+          <p className="text-lg font-semibold mb-4">
+            Are you sure you want to delete this review?
+          </p>
+          <div className="flex justify-center gap-4">
+            <button className="text-[var(--danger)]" onClick={onDelete}>
+              YES
+            </button>
+            <button className="text-[var(--primary)]" onClick={() => setIsDeleteDialogVisible(false)}>
+              NO
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
   </div>
 }
